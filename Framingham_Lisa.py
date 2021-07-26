@@ -211,6 +211,7 @@ print(xtrain[xtrain['BMI'].isnull()])
 print(xtrain['BMI'].isnull().sum())
 
 #Heartrate
+print(xtrain['heartRate'].index[xtrain['heartRate'].apply(np.isnan)].tolist())
 xtrain=xtrain.dropna(subset=['heartRate'])
 print(xtrain.describe())
 print(xtrain['heartRate'].isnull().sum())
@@ -324,3 +325,204 @@ for index, value in enumerate(y_pred1['glucose']):
 
 print(xtrain['glucose'])
 
+
+#Visualisierungen
+'''
+Heatmap null values
+cols=xtrain.columns
+missingvalues=plt.figure(2)
+sns.heatmap(xtrain[cols].isnull()).set_title('missing values')
+print(xtrain.isnull().sum())
+
+#Verteilung der Geschlechter
+fig_sex=plt.figure(1)
+sns.countplot(x='male', data=xtrain).set_title('sex')
+
+#Altersverteilung
+#fig_age=plt.figure(3)
+#sns.countplot(y="age", data=xtrain).set_title('age')
+
+#Verteilung education
+fig_education=plt.figure(4)
+sns.countplot(x='education', data=xtrain).set_title('education')
+
+#Verteilung Raucher/Nichtraucher
+fig_smoker=plt.figure(5)
+sns.countplot(x="currentSmoker", data=xtrain).set_title('currentSmoker')
+
+#Zigaretten pro Tag
+fig_cigspersmoker=plt.figure(12)
+ax = sns.boxplot(x="currentSmoker", y="cigsPerDay", data=xtrain)
+
+#BPMeds
+fig_BPmeds=plt.figure(6)
+sns.countplot(x="BPMeds", data=xtrain).set_title('BPMeds')
+
+#prevalent Stroke
+fig_prevalentStroke=plt.figure(7)
+sns.countplot(x='prevalentStroke', data=xtrain).set_title('prevalentStroke')
+
+#Hypertension
+fig_prevalentHyp=plt.figure(8)
+sns.countplot(x='prevalentHyp', data=xtrain).set_title('prevalentHyp')
+
+#Pie Chart hypertensive individuals with medication
+piedata=([0.090426, 1-0.090426])
+fig_medication=plt.figure(9)
+mylabels = ["BPMeds", "No medication"]
+plt.pie(piedata, labels=mylabels, autopct='%1.1f%%')
+
+#Diabetes
+fig_diabetes=plt.figure(10)
+sns.countplot(x='diabetes', data=xtrain).set_title('diabetes')
+
+#Totchol
+fig_totchol=plt.figure(13)
+sns.boxplot(y="totChol", data=xtrain).set_title('TotChol')
+
+#Correlation BMI and Cholesterin
+fig_corr_chol_BMI=plt.figure(14)
+plt.scatter(x='BMI', y='totChol', data=xtrain)
+
+#SYSBP
+fig_sysBP=plt.figure(14)
+sns.boxplot(x='prevalentHyp', y="sysBP", data=xtrain).set_title('prevalentHyp')
+
+#DIABP
+fig_diaBP=plt.figure(15)
+sns.boxplot(x='prevalentHyp', y="diaBP", data=xtrain).set_title('diaBP')
+
+#BMI
+fig_BMI=plt.figure(16)
+sns.boxplot(y="BMI", data=xtrain)
+
+#heartRate
+fig_heartrate=plt.figure(17)
+sns.boxplot(y="heartRate", data=xtrain)
+
+#glucose
+fig_glucose=plt.figure(18)
+sns.boxplot(x='diabetes', y="glucose", data=xtrain)
+
+
+
+
+#Verteilung der numerischen Werte
+
+#age
+fig_age_distribution=sns.displot(data=xtrain, x=xtrain['age'], kde=True).set(title='Age Distribution')
+fig_age_distribution.fig.subplots_adjust(top=.9)
+fig_age_distribution.set_axis_labels("Age", "Count")
+
+#cigsPerDay
+cigsPerDay_Smoker=xtrain.loc[xtrain["currentSmoker"] == 1, 'cigsPerDay']
+#https://pandas.pydata.org/pandas-docs/stable/getting_started/intro_tutorials/03_subset_data.html
+fig_cigsPerDay=sns.displot(data=xtrain, x=cigsPerDay_Smoker, kde=True).set(title='Cigarettes per Day')
+fig_cigsPerDay.fig.subplots_adjust(top=.9)
+fig_cigsPerDay.set_axis_labels("Cigarettes per Day", "Count")
+
+
+#total cholesterol levels
+fig_totchol=sns.displot(data=xtrain, x=xtrain['totChol'], kde=True).set(title='Distribution of cholesterol levels')
+fig_totchol.fig.subplots_adjust(top=.9)
+fig_totchol.set_axis_labels("Cholesterol level", "Count")
+
+#systolic blood pressure
+fig_sysbp=sns.displot(data=xtrain, x=xtrain['sysBP'], kde=True).set(title='Distribution of systolic blood pressure')
+fig_sysbp.fig.subplots_adjust(top=.9)
+fig_sysbp.set_axis_labels("Systolic blood pressure", "Count")
+
+#diastolic blood pressure
+fig_diabp=sns.displot(data=xtrain, x=xtrain['diaBP'], kde=True).set(title='Distribution of diastolic blood pressure')
+fig_diabp.fig.subplots_adjust(top=.9)
+fig_diabp.set_axis_labels("Diastolic blood pressure", "Count")
+
+#BMI
+fig_bmi=sns.displot(data=xtrain, x=xtrain['BMI'], kde=True).set(title='Distribution of BMI')
+fig_bmi.fig.subplots_adjust(top=.9)
+fig_bmi.set_axis_labels("Body mass index", "Count")
+
+#Heart rate
+fig_hr=sns.displot(data=xtrain, x=xtrain['heartRate'], kde=True).set(title='Distribution of the heart rate')
+fig_hr.fig.subplots_adjust(top=.9)
+fig_hr.set_axis_labels("Heart rate", "Count")
+
+#Glucose
+fig_gluc=sns.displot(data=xtrain, x=xtrain['glucose'], kde=True).set(title='Distribution of glucose levels')
+fig_gluc.fig.subplots_adjust(top=.9)
+fig_gluc.set_axis_labels("Glucose level", "Count")
+'''
+
+
+
+#Korrelationsmatrix
+#neue Variable - metabolic_syndrome als mögliche Kombination von Risikofaktoren (nur 13 Teilnehmer identifiziert)
+xtrain_1=xtrain
+#xtrain_1['metabolic_syndrome'] = np.empty((len(xtrain_1), 0)).tolist()
+xtrain_1['metabolic_syndrome'] = np.where((xtrain_1.BMI >30) & (xtrain_1.sysBP>140) & (xtrain_1.totChol>200) & (xtrain.diabetes==1), 1, 0)
+print(xtrain_1.metabolic_syndrome)
+print(xtrain_1['metabolic_syndrome'].sum())
+print(xtrain_1.isnull().sum())
+
+xtrain_1['unhealthy_behavior'] = np.where((xtrain_1.BMI >30) & (xtrain_1.currentSmoker==1) & (xtrain_1.totChol>200) & (xtrain.diabetes==1), 1, 0)
+print(xtrain_1['unhealthy_behavior'].sum())
+
+ytrain=ytrain.drop(index=689)
+#xtrain_1=xtrain_1.drop('TenYearCHD', axis=1)
+print(xtrain_1)
+
+xtrain_1['TenYearCHD']=ytrain
+print(xtrain_1)
+corr = xtrain_1.corr()
+print(corr)
+'''
+#Erstellung Korrelationsmatrix
+sns.heatmap(corr, annot=True)
+
+
+#Erstellung aller Figures
+plt.show()
+plt.close('all')
+
+
+#Diverse Visualisierungen und Analysen
+from pandas_profiling import ProfileReport
+profile=ProfileReport(xtrain, title='Profile report heart disease')
+profile.to_file('Profile report heart disease.html')
+'''
+
+#Feature Selection
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import chi2
+
+#Correlation with output variable
+cor_target = abs(corr['TenYearCHD'])#Selecting highly correlated features
+relevant_features = cor_target[cor_target>0.1]
+print(relevant_features)
+
+
+'https://towardsdatascience.com/feature-selection-techniques-in-machine-learning-with-python-f24e7da3f36e
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import chi2
+X = xtrain_1  #independent columns
+y = ytrain   #target column i.e price range#apply SelectKBest class to extract top 10 best features
+bestfeatures = SelectKBest(score_func=chi2, k=10)
+fit = bestfeatures.fit(X,y)
+dfscores = pd.DataFrame(fit.scores_)
+dfcolumns = pd.DataFrame(X.columns)
+#concat two dataframes for better visualization
+featureScores = pd.concat([dfcolumns,dfscores],axis=1)
+featureScores.columns = ['Specs','Score']  #naming the dataframe columns
+print(featureScores.nlargest(10,'Score'))  #print 10 best features
+
+
+#Feature importance
+from sklearn.ensemble import ExtraTreesClassifier
+import matplotlib.pyplot as plt
+model = ExtraTreesClassifier()
+model.fit(X,y)
+print(model.feature_importances_) #use inbuilt class feature_importances of tree based classifiers
+#plot graph of feature importances for better visualization
+feat_importances = pd.Series(model.feature_importances_, index=X.columns)
+feat_importances.nlargest(10).plot(kind='barh')
+plt.show()
