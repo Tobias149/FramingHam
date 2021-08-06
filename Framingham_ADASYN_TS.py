@@ -20,22 +20,23 @@ print("Distribution of the TenYearCHD: ", Counter(y))
 # Training and test data for ADASYN
 xtrain, xtest, ytrain, ytest = train_test_split(x,y,test_size=0.3,random_state=5)
 
-# Standardization of xtrain
-scaler = StandardScaler().fit(xtrain)
-standard_X = scaler.transform(xtrain)
-
-# Find the optimum k (n_neighbors) value 
-clf_neigh = KNeighborsClassifier()
-clf_neigh.fit(standard_X,ytrain)
-kOptimum = clf_neigh.get_params
-print(clf_neigh.get_params)
-
-# Prediction
-ypred = clf_neigh.predict(xtest)
-
 #Declaration of ADASYN (Oversampling) object and fitting on dataset
 ada = ADASYN(sampling_strategy='minority',random_state=5, n_neighbors = 5)
 xres, yres = ada.fit_resample(xtrain,ytrain)
+
+# Standardization of xtrain
+scaler = StandardScaler().fit(xres)
+standard_X = scaler.transform(xres)
+standard_X_test = scaler.transform(xtest)
+
+# Find the optimum k (n_neighbors) value 
+clf_neigh = KNeighborsClassifier()
+clf_neigh.fit(standard_X,yres)
+#kOptimum = clf_neigh.get_params
+#print(clf_neigh.get_params)
+
+# Prediction
+ypred = clf_neigh.predict(standard_X_test) #
 
 #Distribution of synthetic generation Oversampling
 counter = Counter(yres)
