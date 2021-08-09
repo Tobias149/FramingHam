@@ -12,7 +12,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn import neighbors
 
 # Loading of the relevant features and the target feature
-df = pd.read_csv('/Users/tobiasschmidt/Desktop/TechLabs 2/Dataset 2/Cleaned_framingham.csv')
+df = pd.read_csv('/Users/tobiasschmidt/Desktop/TechLabs 2/Dataset 2/framingham_cleaned.csv')
 x = df.drop(columns=['TenYearCHD'], axis=1) # dataset without the target feature
 y = df['TenYearCHD'] # target feature
 
