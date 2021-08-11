@@ -29,6 +29,7 @@ y=df.TenYearCHD
 x=df.drop('TenYearCHD',axis=1)
 xtrain, xtest, ytrain, ytest = train_test_split(x,y,test_size=0.3,random_state=5)
 
+## Merging of xtest and yest again to the test dataframe
 df_test_dataset = pd.DataFrame(xtest) # transfer xtest into dataframe
 df_ytest_dataset = pd.DataFrame(ytest) # transfer ytest into dataframe
 
@@ -36,19 +37,6 @@ df_test_dataset.insert (15,"TenYearCHD", df_ytest_dataset) # Merge xtest with yt
 print(df_test_dataset.head())
 df_test_dataset.isnull().sum()
 #df_test_dataset.info()
-df_test_dataset = df_test_dataset.dropna(subset=['education','cigsPerDay','BPMeds','totChol','BMI','glucose'], axis=0) # drop NaN values within the test dataset of each rows
-
-# Change float variables into integers values in the test dataset
-
-df_test_dataset['education'] = df_test_dataset['education'].astype("int")
-df_test_dataset['cigsPerDay'] = df_test_dataset['cigsPerDay'].astype("int")
-df_test_dataset['BPMeds'] = df_test_dataset['BPMeds'].astype("int")
-df_test_dataset['totChol'] = df_test_dataset['totChol'].astype("int")
-df_test_dataset['sysBP'] = df_test_dataset['sysBP'].astype("int")
-df_test_dataset['diaBP'] = df_test_dataset['diaBP'].astype("int")
-df_test_dataset['BMI'] = df_test_dataset['BMI'].astype("int")
-df_test_dataset['heartRate'] = df_test_dataset['heartRate'].astype("int")
-df_test_dataset['glucose'] = df_test_dataset['glucose'].astype("int")
 
 # Creating the test dataset csv.file
 df_test_dataset.rename(columns={'male':'Sex'}, inplace = True)
