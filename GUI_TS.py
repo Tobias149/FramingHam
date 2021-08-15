@@ -124,14 +124,14 @@ lbl_Glucose = tk.Label(fenster, text="Glucose level [mg/dL] ", anchor="w")
 back_gnd.create_window(900,400, window=lbl_Glucose, anchor='center', width=230)
 
 ## Input features left hand
-frame_Sex =tk.Frame(fenster)
-scb_SEX = tk.Scrollbar(frame_Sex,orient="vertical")
-li_SEX = tk.Listbox(frame_Sex, height=0,yscrollcommand=scb_SEX.set)
-scb_SEX["command"]= li_SEX.yview
-Gender = ["female","male"] # 1 = Female, 0 = Male
-for i in Gender:
-    li_SEX.insert("end", i)
-back_gnd.create_window(335,100, window=frame_Sex, anchor='center', width=60)
+#frame_Sex =tk.Frame(fenster)
+#scb_SEX = tk.Scrollbar(fenster,orient="vertical")
+#li_SEX = tk.Listbox(fenster, height=0,yscrollcommand=scb_SEX.set)
+#scb_SEX["command"]= li_SEX.yview
+#Gender = ["female","male"] # 1 = Female, 0 = Male
+#for i in Gender:
+    #li_SEX.insert("end", i)
+#back_gnd.create_window(335,100, window=li_SEX, anchor='center', width=60)
 
 txt_AGE = tk.Entry(fenster)
 txt_AGE.insert(0, "23") # years
@@ -141,7 +141,7 @@ back_gnd.create_window(335,150, window=txt_AGE, anchor='center', width=60)
 #li_Education = tk.Listbox(fenster, height=1, yscrollcommand=scb_Education.set)
 #scb_Education["command"]= li_Education.yview
 #scb_Education.pack(side="left")
-# 1 = 0-11 years, 2 = high school or GED, 3 = some college, 4 = college graduate or higher
+## 1 = 0-11 years, 2 = high school or GED, 3 = some college, 4 = college graduate or higher
 #Education = ["primary school","high school","college","college grad."] 
 #for i in Education:
     #li_Education.insert("end", i)
