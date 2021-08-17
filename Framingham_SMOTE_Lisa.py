@@ -215,9 +215,9 @@ ax3.grid(True)
 #k optimal aus den Abbildungen(5 Wiederholungen): 5,3,3,3,3
 
 
-#########################################################################################################################
 ########################################################################################################################
-#Clustering with KMeans
+########################################################################################################################
+#Clustering with KMeans, number of clusters based on the evaluations above
 #https://towardsdatascience.com/machine-learning-algorithms-part-9-k-means-example-in-python-f2ad05ed5203
 
 from sklearn.cluster import KMeans
@@ -241,6 +241,16 @@ cluster_5y=(ytrain_c[pred_y==4])
 cluster_6=(xtrain_c[pred_y==5])
 cluster_6y=(ytrain_c[pred_y==5])
 
+cluster = []
+clustery = []
+clusterxy = []
+for i in range(6):
+    cluster.append(xtrain_c[pred_y == i])
+    clustery.append(ytrain_c[pred_y == i])
+    clusterxy.append(cluster[i].join(clustery[i]))
+    print(clusterxy[i].shape)
+    print(clusterxy[i]['TenYearCHD'].sum())
+
 #Joining the clusters with the target variable
 cluster_1=cluster_1.join(cluster_1y)
 cluster_2=cluster_2.join(cluster_2y)
@@ -249,7 +259,8 @@ cluster_4=cluster_4.join(cluster_4y)
 cluster_5=cluster_5.join(cluster_5y)
 cluster_6=cluster_6.join(cluster_6y)
 
-print(cluster_1.shape)  #512 lines
+
+print(cluster_1.shape)  #511 lines
 print(cluster_1['TenYearCHD'].sum()) #70
 print(cluster_2.shape)  #640 lines
 print(cluster_2['TenYearCHD'].sum()) #76
@@ -262,14 +273,33 @@ print(cluster_5['TenYearCHD'].sum()) #14
 print(cluster_6.shape)  #262 lines
 print(cluster_6['TenYearCHD'].sum()) #79
 
-#erster Durchlauf: cluster_1: 512(20), cluster_2: 640(76), cluster_3:484(46), cluster_4:157(26), cluster_5:(21(14), cluster_6:262(79)
+#erster Durchlauf: cluster_1: 511(20), cluster_2: 640(76), cluster_3:484(46), cluster_4:157(26), cluster_5:(21(14), cluster_6:262(79)
 
 ########################################################################################################################
 ########################################################################################################################
 #Oversampling of the newly created clusters
 
-smote=SMOTE(sampling_strategy=('all'), k_neighbors=3)
-X=cluster_2
-y=cluster_2y
-xtrain_cbs, ytrain_cbs=smote.fit_resample(X, y)
-print(xtrain_cbs['TenYearCHD'].isnull().sum)
+max = 0
+max_index = 0
+for i in range(6):
+    if max < clusterxy[i].shape[0]:
+        max = clusterxy[i].shape[0]
+        max_index = i
+clusterxy_0 = clusterxy[max_index]['TenYearCHD'][clusterxy[max_index]['TenYearCHD'] == 0]
+smote=SMOTE(sampling_strategy={0:len(clusterxy_0), 1:len(clusterxy_0)}, k_neighbors=3)
+dfx = pd.DataFrame()
+dfy = pd.DataFrame()
+for i in range(6):
+    X=cluster[i]
+    y=clustery[i]
+    xtrain_cbs, ytrain_cbs=smote.fit_resample(X, y)
+    print(xtrain_cbs.shape)
+    dfx.append(xtrain_cbs)
+    dfy.append(ytrain_cbs)
+print(dfx.shape)
+# df to csv
+import time
+t = time.localtime()
+current_time = time.strftime("%H:%M:%S", t)
+current_time = str(current_time).replace(':','-')
+print('mydataframe_' + current_time + '.csv') # tocsv
