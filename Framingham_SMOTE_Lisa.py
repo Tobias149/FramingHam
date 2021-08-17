@@ -8,10 +8,11 @@ pd.options.display.max_columns = None #with this line, all columns are showed
 
 df=pd.read_csv('C:/Users/Lisa Mary/Documents/TechLabs/Framingham Data Set/Framingham_cleaned.csv')
 y=df.TenYearCHD
-x=df.drop(columns=['TenYearCHD',  'metabolic_syndrome', 'unhealthy_behavior'])
+x=df.drop(columns=['TenYearCHD'])
 xtrain_c, xtest_c, ytrain_c, ytest_c = train_test_split(x, y, test_size=0.3, random_state=5)
 xtrain_c = pd.DataFrame(xtrain_c)
 xtrain_c = xtrain_c.sort_index()
+ytrain_c=pd.Series(ytrain_c).sort_index()
 print(xtrain_c.head())
 
 
@@ -56,30 +57,15 @@ ypred1=neigh.predict(xtest_c)
 print("Accuracy SMOTE and Undersampling:", accuracy_score(ytest_c, ypred1))
 print("SMOTE and Undersampling:", pd.crosstab(ytest_c, ypred1))
 
-#SMOTE NC for categorical features
-from imblearn.over_sampling import BorderlineSMOTE
-bsmote = BorderlineSMOTE()
-x_oversample_borderline, y_oversample_borderline = bsmote.fit_resample(xtrain_c, ytrain_c)
-neigh.fit(x_oversample_borderline, y_oversample_borderline)
-ypred2=neigh.predict(xtest_c)
-print("Accuracy Score Borderline SMOTE:", accuracy_score(ytest_c, ypred2))
-print("Borderline SMOTE:", pd.crosstab(ytest_c, ypred2))
 
-
-from imblearn.over_sampling import SVMSMOTE
-svmsmote = SVMSMOTE()
-X_oversample_svm, y_oversample_svm = svmsmote.fit_resample(xtrain_c, ytrain_c)
-from sklearn.linear_model import LogisticRegression
-classifier_svm = LogisticRegression()
-classifier_svm.fit(X_oversample_svm, y_oversample_svm)
-ypred3=classifier_svm.predict(xtest_c)
-print("Accuracy SVM SMOTE:", accuracy_score(ytest_c, ypred3))
-print("SVM SMOTE:", pd.crosstab(ytest_c, ypred3))
-
+########################################################################################################################
+########################################################################################################################
 #cluster based oversampling method based on Santos et al. (2015)
 #https://towardsdatascience.com/k-means-clustering-and-the-gap-statistics-4c5d414acd29
 #https://towardsdatascience.com/cheat-sheet-to-implementing-7-methods-for-selecting-optimal-number-of-clusters-in-python-898241e1d6ad
 #https://gist.github.com/michiexile/5635273
+
+#GAP statistic for finding the optimal value of k for k means
 
 # gap.py
 # (c) 2013 Mikael Vejdemo-Johansson
@@ -92,7 +78,7 @@ print("SVM SMOTE:", pd.crosstab(ytest_c, ypred3))
 #  J. R. Statist. Soc. B (2001) 63, Part 2, pp 411-423
 '''
 from sklearn.cluster import KMeans, Birch
-def optimalK(data, nrefs=3, maxClusters=15):
+def optimalK(xtrain_c, nrefs=3, maxClusters=30):
     """
     Calculates KMeans optimal K using Gap Statistic from Tibshirani, Walther, Hastie
     Params:
@@ -140,10 +126,10 @@ def optimalK(data, nrefs=3, maxClusters=15):
 
 
 
-k, gapdf = optimalK(x, nrefs=5, maxClusters=15)
+k, gapdf = optimalK(xtrain_c, nrefs=3, maxClusters=10)
 print ('Optimal k is: ', k)
 
-'''
+
 
 plt.plot(gapdf.clusterCount, gapdf.gap, linewidth=3)
 plt.scatter(gapdf[gapdf.clusterCount == k].clusterCount, gapdf[gapdf.clusterCount == k].gap, s=250, c='r')
@@ -152,4 +138,138 @@ plt.xlabel('Cluster Count')
 plt.ylabel('Gap Value')
 plt.title('Gap Values by Cluster Count')
 plt.show()
+'''
 
+
+#GAP Method to find the optimal value of k for KMeans
+#https://github.com/milesgranger/gap_statistic/blob/master/Example.ipynb
+xtrain_c=xtrain_c.astype(float)
+from gap_statistic import OptimalK
+optimalK = OptimalK(n_jobs=4, parallel_backend='joblib')
+n_clusters = optimalK(xtrain_c, n_refs=3, cluster_array=np.arange(1, 30))
+print('Optimal clusters: ', n_clusters)
+# 10 Wiederholungen Ergebnisse: 5,6,2,7,7,6,2,8,6,6
+
+print(optimalK.gap_df.head())
+
+plt.plot(optimalK.gap_df.n_clusters, optimalK.gap_df.gap_value, linewidth=3)
+plt.scatter(optimalK.gap_df[optimalK.gap_df.n_clusters == n_clusters].n_clusters,
+            optimalK.gap_df[optimalK.gap_df.n_clusters == n_clusters].gap_value, s=250, c='r')
+plt.grid(True)
+plt.xlabel('Cluster Count')
+plt.ylabel('Gap Value')
+plt.title('Gap Values by Cluster Count')
+#plt.show()
+
+
+########################################################################################################################
+########################################################################################################################
+#Elbow method, Silhouette method, Davies Bouldin Score
+#https://becominghuman.ai/3-minute-read-to-how-to-find-optimal-number-of-clusters-using-k-means-algorithm-eaa6bdce92cc
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score,davies_bouldin_score
+X=xtrain_c
+wss = []
+db = []
+sil = []
+K = range(2, 10)
+for n in K:
+    algorithm = (KMeans(n_clusters = n) )
+    algorithm.fit(X)
+    labels = algorithm.labels_
+    db.append(davies_bouldin_score(X,labels))
+    sil.append(silhouette_score(X, labels, metric = 'euclidean'))
+    wss.append(algorithm.inertia_)
+
+
+#Visualization
+
+fig, (ax1, ax2, ax3) = plt.subplots(ncols =3)
+# fig, (ax3) = plt.subplots(ncols =1)
+fig.set_figheight(10)
+fig.set_figwidth(30)
+
+ax1.plot(K, wss, 'bo')
+ax1.plot(K, wss, 'r-', alpha = 0.5)
+ax1.set_xlabel('Number of Clusters (k)')
+ax1.set_ylabel('Sum_of_squared_distances')
+ax1.set_title('Elbow Method For Optimal k')
+ax1.grid(True)
+
+ax2.plot(K,sil, 'bo')
+ax2.plot(K, sil, 'r-', alpha = 0.5)
+ax2.set_xlabel('Number of Clusters (k)')
+ax2.set_ylabel('Silhouette Score')
+ax2.set_title('Silhouette Method For Optimal k')
+ax2.grid(True)
+
+ax3.plot(K,db, 'bo')
+ax3.plot(K, db, 'r-', alpha = 0.5)
+ax3.set_xlabel('Number of Clusters (k)')
+ax3.set_ylabel('DB index')
+ax3.set_title('DB Index Method For Optimal k')
+ax3.grid(True)
+
+#plt.show()
+
+#k optimal aus den Abbildungen(5 Wiederholungen): 5,3,3,3,3
+
+
+#########################################################################################################################
+########################################################################################################################
+#Clustering with KMeans
+#https://towardsdatascience.com/machine-learning-algorithms-part-9-k-means-example-in-python-f2ad05ed5203
+
+from sklearn.cluster import KMeans
+kmeans = KMeans(n_clusters=6, init='k-means++', max_iter=300, n_init=10, random_state=123)
+X=xtrain_c
+pred_y = kmeans.fit_predict(X)
+print(pred_y)
+print(np.unique(pred_y, return_counts=True))
+
+#Dividing the clusters for further analysis
+cluster_1=(xtrain_c[pred_y==0])
+cluster_1y=(ytrain_c[pred_y==0])
+cluster_2=(xtrain_c[pred_y==1])
+cluster_2y=(ytrain_c[pred_y==1])
+cluster_3=(xtrain_c[pred_y==2])
+cluster_3y=(ytrain_c[pred_y==2])
+cluster_4=(xtrain_c[pred_y==3])
+cluster_4y=(ytrain_c[pred_y==3])
+cluster_5=(xtrain_c[pred_y==4])
+cluster_5y=(ytrain_c[pred_y==4])
+cluster_6=(xtrain_c[pred_y==5])
+cluster_6y=(ytrain_c[pred_y==5])
+
+#Joining the clusters with the target variable
+cluster_1=cluster_1.join(cluster_1y)
+cluster_2=cluster_2.join(cluster_2y)
+cluster_3=cluster_3.join(cluster_3y)
+cluster_4=cluster_4.join(cluster_4y)
+cluster_5=cluster_5.join(cluster_5y)
+cluster_6=cluster_6.join(cluster_6y)
+
+print(cluster_1.shape)  #512 lines
+print(cluster_1['TenYearCHD'].sum()) #70
+print(cluster_2.shape)  #640 lines
+print(cluster_2['TenYearCHD'].sum()) #76
+print(cluster_3.shape)  #484 lines
+print(cluster_3['TenYearCHD'].sum()) #46
+print(cluster_4.shape)  #157 lines
+print(cluster_4['TenYearCHD'].sum()) #26
+print(cluster_5.shape)  #21 lines
+print(cluster_5['TenYearCHD'].sum()) #14
+print(cluster_6.shape)  #262 lines
+print(cluster_6['TenYearCHD'].sum()) #79
+
+#erster Durchlauf: cluster_1: 512(20), cluster_2: 640(76), cluster_3:484(46), cluster_4:157(26), cluster_5:(21(14), cluster_6:262(79)
+
+########################################################################################################################
+########################################################################################################################
+#Oversampling of the newly created clusters
+
+smote=SMOTE(sampling_strategy=('all'), k_neighbors=3)
+X=cluster_2
+y=cluster_2y
+xtrain_cbs, ytrain_cbs=smote.fit_resample(X, y)
+print(xtrain_cbs['TenYearCHD'].isnull().sum)
