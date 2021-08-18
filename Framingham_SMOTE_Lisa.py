@@ -264,11 +264,22 @@ for j in range(10):
         dfy.append(ytrain_cbs)
         df_temp.append(dfx[i].join(dfy[i]))
     df.append(np.concatenate(df_temp))
-for df in df:
-    print(df.shape)
 
+
+
+df_test = []
+
+for dataframe in df:
+    dataframe = pd.DataFrame(dataframe)
+    #print(dataframe)
+    df_test = dataframe.sample(frac = .1)       #Get the final data set, take fraction of oversampled datasets
+    #print(df_test.shape)
+    #print(df_test)
 
 ########################################################################################################################
 ########################################################################################################################
 #Get the final data set
 
+dataframe[0].append([dataframe[1], dataframe[2], dataframe[3], dataframe[4], dataframe[5]])
+print(dataframe.shape)
+print(dataframe.head)
