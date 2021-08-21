@@ -1,6 +1,6 @@
 from os import path
 import tkinter as tk
-from tkinter.constants import ANCHOR, COMMAND, RIGHT, Y
+from tkinter.constants import ANCHOR, BOTH, COMMAND, LEFT, RIGHT, SCROLL, X, Y
 from typing import BinaryIO, Text
 import urllib
 from numpy import common_type
@@ -17,6 +17,7 @@ def ende():
 def submit():
 
     second = tk.Tk()
+    second.title("Your entries!")
     #back_second = tk.Canvas(second)
     #back_second.pack(expand=True, fill='both')
     #path1 = '/Users/tobiasschmidt/Desktop/healthy-heart.jpg'
@@ -26,15 +27,63 @@ def submit():
     #back_second.create_image(0,0, anchor='center', image = back_second_image)
     
 
-    #VSex = int(li_SEX.get())
+    VSex = li_SEX.get(li_SEX.curselection())
+    if VSex == 'female':
+        VSex = 1 # female
+    else:
+        VSex = 0 # male
+    VSex = int(VSex)
+    
     VAge = int(txt_AGE.get())
-    #VEducation = int(li_Education.get())
-    #VCSmoker = int(li_CSmoker,get())
+
+    VEducation = li_Education.get(li_Education.curselection())
+    if VEducation == 'primary school':
+        VEducation = 1 # primary school
+    elif VEducation == 'high school':
+        VEducation = 2 # high school
+    elif VEducation == 'college':
+        VEducation = 3 # college
+    else:
+        VEducation = 4 # college grad.
+    VEducation = int(VEducation)
+
+    VCSmoker = li_CSmoker.get(li_CSmoker.curselection())
+    if VCSmoker == 'yes':
+        VCSmoker = 1 # yes
+    else:
+        VCSmoker = 0 # no
+    VCSmoker = int(VCSmoker)
+
     VCigsPday = int(txt_CigsPday.get())
-    #VBPMeds = int(li_BPMeds.get())
-    #VPrevalentStroke = int(li_PrevalentStroke.get())
-    #VPrevalentHYP = int(li_PrevalentHYP.get())
-    #VDiabetes = int(li_Diabetes.get())
+
+    VBPMeds = li_BPMeds.get(li_BPMeds.curselection())
+    if VBPMeds == 'yes':
+        VBPMeds = 1 # yes
+    else:
+        VBPMeds = 0 # no
+    VBPMeds = int(VBPMeds)
+
+    VPrevalentStroke = li_PrevalentStroke.get(li_PrevalentStroke.curselection())
+    if VPrevalentStroke == 'yes':
+        VPrevalentStroke = 1 # yes
+    else:
+        VPrevalentStroke = 0 # no
+    VPrevalentStroke = int(VPrevalentStroke)
+
+    VPrevalentHYP = li_PrevalentHYP.get(li_PrevalentHYP.curselection())
+    if VPrevalentHYP == 'yes':
+        VPrevalentHYP = 1 # yes
+    else:
+        VPrevalentHYP = 0 # no
+    VPrevalentHYP = int(VPrevalentHYP)
+
+    VDiabetes = li_Diabetes.get(li_Diabetes.curselection())
+    if VDiabetes == 'yes':
+        VDiabetes = 1 # yes
+    else:
+        VDiabetes = 0 # no
+    VDiabetes = int(VDiabetes)
+
     VTotChol = int(txt_TotChol.get())
     VSysBP = int(txt_SysBP.get())
     VDiaBP = int(txt_DiaBP.get())
@@ -42,12 +91,20 @@ def submit():
     VHeartRate = int(txt_HeartRate.get())
     VGlucose = int(txt_Glucose.get())
 
-    xSubmit = np.array([VAge,VCigsPday,VTotChol,VSysBP,
-                        VDiaBP,VBMI,VHeartRate,VGlucose])
+    xSubmit = np.array([VSex,VAge,VEducation,VCSmoker,VCigsPday,VBPMeds,VPrevalentStroke,
+                        VPrevalentHYP,VDiabetes,VTotChol,VSysBP,VDiaBP,VBMI,VHeartRate,
+                        VGlucose])
     print(xSubmit)
+
+    sLeft   =  "%s" % 500    # X-Position auf dem Bildschirm (linke obere Ecke in Pixels)
+    sTop    =  "%s" % 250    # Y-Position auf dem Bildschirm (linke obere Ecke in Pixels)
+    sWidth  =  "%s" % 600   # Breite (Pixels)
+    sHeight =  "%s" % 300   # Höhe   (Pixels)
 
     lb = tk.Label(second, text=xSubmit)
     lb.pack()
+
+    second.wm_geometry(sWidth+"x"+sHeight+"+"+sLeft+"+"+sTop)
 
     second.mainloop()
 
@@ -123,37 +180,41 @@ back_gnd.create_window(900,350, window=lbl_HeartRate, anchor='center', width=230
 lbl_Glucose = tk.Label(fenster, text="Glucose level [mg/dL] ", anchor="w")
 back_gnd.create_window(900,400, window=lbl_Glucose, anchor='center', width=230)
 
-## Input features left hand
-#frame_Sex =tk.Frame(fenster)
+### Input features left hand ###
+
+frame_Sex =tk.Frame(fenster)
 #scb_SEX = tk.Scrollbar(fenster,orient="vertical")
 #li_SEX = tk.Listbox(fenster, height=0,yscrollcommand=scb_SEX.set)
 #scb_SEX["command"]= li_SEX.yview
-#Gender = ["female","male"] # 1 = Female, 0 = Male
-#for i in Gender:
-    #li_SEX.insert("end", i)
-#back_gnd.create_window(335,100, window=li_SEX, anchor='center', width=60)
+Gender = ["female","male"] # 1 = Female, 0 = Male
+li_SEX = tk.Listbox(fenster, exportselection=0, height=0)
+for i in Gender:
+    li_SEX.insert("end", i)
+back_gnd.create_window(335,100, window=li_SEX, anchor='center', width=60)
 
 txt_AGE = tk.Entry(fenster)
 txt_AGE.insert(0, "23") # years
 back_gnd.create_window(335,150, window=txt_AGE, anchor='center', width=60) 
 
-#scb_Education = tk.Scrollbar(fenster,orient="vertical")
-#li_Education = tk.Listbox(fenster, height=1, yscrollcommand=scb_Education.set)
-#scb_Education["command"]= li_Education.yview
-#scb_Education.pack(side="left")
+scb_Education = tk.Scrollbar(fenster,orient="vertical")
+#li_Education = tk.Listbox(fenster, height=2)
 ## 1 = 0-11 years, 2 = high school or GED, 3 = some college, 4 = college graduate or higher
-#Education = ["primary school","high school","college","college grad."] 
-#for i in Education:
-    #li_Education.insert("end", i)
-#back_gnd.create_window(355,200, window=li_Education, width=100)
+Education = ["primary school","high school","college","college grad."] 
+li_Education = tk.Listbox(exportselection=0, height=2, yscrollcommand = scb_Education.set)
+for i in Education:   
+    li_Education.insert("end", i)
+scb_Education["command"]= li_Education.yview
+back_gnd.create_window(355,200, window=li_Education,anchor='center', width=100)
+back_gnd.create_window(415,200, window=scb_Education,anchor='center', height=60)
 
 #scb_CSmoker = tk.Scrollbar(fenster,orient="vertical")
 #li_CSmoker = tk.Listbox(fenster, height=0,yscrollcommand=scb_CSmoker.set)
 #scb_CSmoker["command"]= li_CSmoker.yview
-#CSmoker = ["yes","no"]
-#for i in CSmoker:
-    #li_CSmoker.insert("end", i)
-#back_gnd.create_window(335,250, window=li_CSmoker, anchor='center', width=60)
+CSmoker = ["yes","no"]
+li_CSmoker = tk.Listbox(exportselection=0,height=0)
+for i in CSmoker:
+    li_CSmoker.insert("end", i)
+back_gnd.create_window(335,250, window=li_CSmoker, anchor='center', width=60)
 
 txt_CigsPday = tk.Entry(fenster)
 txt_CigsPday.insert(0, "5")
@@ -162,30 +223,52 @@ back_gnd.create_window(335,300, window=txt_CigsPday, anchor='center', width=60)
 #scb_BPMeds = tk.Scrollbar(fenster,orient="vertical")
 #li_BPMeds = tk.Listbox(fenster, height=0,yscrollcommand=scb_BPMeds.set)
 #scb_BPMeds["command"]= li_BPMeds.yview
-#BPMeds = ["yes","no"]
-#for i in BPMeds:
-    #li_BPMeds.insert("end", i)
-#back_gnd.create_window(335,350, window=li_BPMeds, anchor='center', width=60)
+BPMeds = ["yes","no"]
+li_BPMeds = tk.Listbox(fenster, exportselection=0, height=0)
+for i in BPMeds:
+    li_BPMeds.insert("end", i)
+back_gnd.create_window(335,350, window=li_BPMeds, anchor='center', width=60)
 
+PrevStroke = ["yes","no"]
+li_PrevalentStroke = tk.Listbox(fenster, exportselection=0, height=0)
+for i in PrevStroke:
+    li_PrevalentStroke.insert("end", i)
+back_gnd.create_window(335,400, window=li_PrevalentStroke, anchor='center', width=60)
 
+PrevHYP = ["yes","no"]
+li_PrevalentHYP = tk.Listbox(fenster, exportselection=0, height=0)
+for i in PrevHYP:
+    li_PrevalentHYP.insert("end", i)
+back_gnd.create_window(335,450, window=li_PrevalentHYP, anchor='center', width=60)
 
+### Input features right hand ###
 
-## Input features right hand
+Diabetes = ["yes","no"]
+li_Diabetes = tk.Listbox(fenster, exportselection=0, height=0)
+for i in Diabetes:
+    li_Diabetes.insert("end", i)
+back_gnd.create_window(755,100, window=li_Diabetes, anchor='center', width=60)
+
 txt_TotChol = tk.Entry(fenster)
 txt_TotChol.insert(0, "190")
-back_gnd.create_window(755,150, window=txt_TotChol, anchor='center', width=60) 
+back_gnd.create_window(755,150, window=txt_TotChol, anchor='center', width=60)
+
 txt_SysBP = tk.Entry(fenster)
 txt_SysBP.insert(0, "140") #mean systolic was >=140 mmHg
-back_gnd.create_window(755,200, window=txt_SysBP, anchor='center', width=60) 
+back_gnd.create_window(755,200, window=txt_SysBP, anchor='center', width=60)
+
 txt_DiaBP = tk.Entry(fenster)
 txt_DiaBP.insert(0, "90") #mean Diastolic >=90 mmHg
 back_gnd.create_window(755,250, window=txt_DiaBP, anchor='center', width=60)
+
 txt_BMI = tk.Entry(fenster)
 txt_BMI.insert(0, "23") # Body Mass Index, weight in kilograms/height meters squared.
-back_gnd.create_window(755,300, window=txt_BMI, anchor='center', width=60) 
+back_gnd.create_window(755,300, window=txt_BMI, anchor='center', width=60)
+
 txt_HeartRate = tk.Entry(fenster)
 txt_HeartRate.insert(0, "80")
 back_gnd.create_window(755,350, window=txt_HeartRate, anchor='center', width=60)
+
 txt_Glucose = tk.Entry(fenster)
 txt_Glucose.insert(0, "70")
 back_gnd.create_window(755,400, window=txt_Glucose, anchor='center', width=60) 
@@ -198,13 +281,13 @@ back_gnd.create_window(630,550, window=cmd_button_e, anchor='sw', width=150, hei
 cmd_button_s = tk.Button(None, text="Submit", bd=1, highlightthickness=0, command= submit)
 back_gnd.create_window(330,550, window=cmd_button_s, anchor='sw', width=150, height=50)
 
-sLeft   =  "%s" % 500    # X-Position auf dem Bildschirm (linke obere Ecke in Pixels)
-sTop    =  "%s" % 250    # Y-Position auf dem Bildschirm (linke obere Ecke in Pixels)
-sWidth  =  "%s" % 1100   # Breite (Pixels)
-sHeight =  "%s" % 600    # Höhe   (Pixels)
+fLeft   =  "%s" % 500    # X-Position auf dem Bildschirm (linke obere Ecke in Pixels)
+fTop    =  "%s" % 250    # Y-Position auf dem Bildschirm (linke obere Ecke in Pixels)
+fWidth  =  "%s" % 1100   # Breite (Pixels)
+fHeight =  "%s" % 600    # Höhe   (Pixels)
 
 ## Limitation of main window size
-fenster.wm_geometry(sWidth+"x"+sHeight+"+"+sLeft+"+"+sTop)
+fenster.wm_geometry(fWidth+"x"+fHeight+"+"+fLeft+"+"+fTop)
 fenster.resizable(width=0, height=0) # Verhinderung, dass die Fenstergröße verändert werden kann
 
 ## Loop end
