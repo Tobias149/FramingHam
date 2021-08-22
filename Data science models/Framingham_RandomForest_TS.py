@@ -36,7 +36,7 @@ model = RandomForestClassifier(random_state=42)
 
 # How to find the optimum hyperparameter of random forest via GridSearch
 params = { 
-    'n_estimators': range(200, 500), # Number fo trees in the forrest
+    'n_estimators': range(1, 100), # Number fo trees in the forrest
     'max_features': ['auto', 'sqrt', 'log2'], # number of features to consider when looking for the best split
     'max_depth' : [4,5,6,7,8], # maximum depth of tree
     'criterion' :['gini', 'entropy'] # quality of split
