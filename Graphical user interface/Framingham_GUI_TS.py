@@ -121,8 +121,10 @@ back_gnd.pack(expand=True, fill='both')
 #back_gnd_image = Image.open(path1)
 
 ## Read and open the Image from Github
-urllib.request.urlretrieve("https://raw.githubusercontent.com/Tobias149/FramingHam/main/internal_structures_1_0.jpg", "internal_structures_1_0.jpg")
+#urllib.request.urlretrieve("https://raw.githubusercontent.com/Tobias149/FramingHam/main/internal_structures_1_0.jpg", "internal_structures_1_0.jpg")
+urllib.request.urlretrieve("https://raw.githubusercontent.com/Tobias149/FramingHam/main/Graphical%20user%20interface/internal_structures_1_0.jpg", "internal_structures_1_0.jpg")
 back_gnd_image = Image.open("internal_structures_1_0.jpg")
+
 
 ## Reszie the Image
 resize_back_gnd_image = back_gnd_image.resize((1100, 600))
