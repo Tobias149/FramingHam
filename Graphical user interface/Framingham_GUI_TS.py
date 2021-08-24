@@ -9,6 +9,8 @@ from numpy.lib.polynomial import roots
 import urllib.request
 import numpy as np
 
+fenster= tk.Tk()
+
 ## Funktion zur Schaltfläche Ende
 def ende():
     fenster.destroy()
@@ -18,98 +20,118 @@ def submit():
 
     second = tk.Tk()
     second.title("Your entries!")
-    #back_second = tk.Canvas(second)
-    #back_second.pack(expand=True, fill='both')
-    #path1 = '/Users/tobiasschmidt/Desktop/healthy-heart.jpg'
-    #back_second_image = Image.open(path1)
+    back_second = tk.Canvas(second)
+    back_second.pack(expand=True, fill='both')
+    #urllib.request.urlretrieve("https://raw.githubusercontent.com/Tobias149/FramingHam/main/Graphical%20user%20interface/internal_structures_1_0.jpg", "internal_structures_1_0.jpg")
+    #back_gnd_image = Image.open("internal_structures_1_0.jpg")
+    
     #resize_back_second_image = back_second_image.resize((1100, 600))
     #back_second_image = ImageTk.PhotoImage(resize_back_second_image)
     #back_second.create_image(0,0, anchor='center', image = back_second_image)
+
+    try:
+        VSex = li_SEX.get(li_SEX.curselection())
+        if VSex == 'male':
+            VSex = 1 # male
+            VSex = int(VSex)
+        elif VSex == 'female':
+            VSex = 0 # female
+            VSex = int(VSex)
     
+        VAge = int(txt_AGE.get())
 
-    VSex = li_SEX.get(li_SEX.curselection())
-    if VSex == 'female':
-        VSex = 1 # female
-    else:
-        VSex = 0 # male
-    VSex = int(VSex)
-    
-    VAge = int(txt_AGE.get())
+        VEducation = li_Education.get(li_Education.curselection())
+        if VEducation == 'primary school':
+            VEducation = 1 # primary school
+        elif VEducation == 'high school':
+            VEducation = 2 # high school
+        elif VEducation == 'college':
+            VEducation = 3 # college
+        else:
+            VEducation = 4 # college grad.
+        VEducation = int(VEducation)
 
-    VEducation = li_Education.get(li_Education.curselection())
-    if VEducation == 'primary school':
-        VEducation = 1 # primary school
-    elif VEducation == 'high school':
-        VEducation = 2 # high school
-    elif VEducation == 'college':
-        VEducation = 3 # college
-    else:
-        VEducation = 4 # college grad.
-    VEducation = int(VEducation)
+        VCSmoker = li_CSmoker.get(li_CSmoker.curselection())
+        if VCSmoker == 'yes':
+            VCSmoker = 1 # yes
+        else:
+            VCSmoker = 0 # no
+        VCSmoker = int(VCSmoker)
 
-    VCSmoker = li_CSmoker.get(li_CSmoker.curselection())
-    if VCSmoker == 'yes':
-        VCSmoker = 1 # yes
-    else:
-        VCSmoker = 0 # no
-    VCSmoker = int(VCSmoker)
+        VCigsPday = int(txt_CigsPday.get())
 
-    VCigsPday = int(txt_CigsPday.get())
+        VBPMeds = li_BPMeds.get(li_BPMeds.curselection())
+        if VBPMeds == 'yes':
+            VBPMeds = 1 # yes
+        else:
+            VBPMeds = 0 # no
+        VBPMeds = int(VBPMeds)
 
-    VBPMeds = li_BPMeds.get(li_BPMeds.curselection())
-    if VBPMeds == 'yes':
-        VBPMeds = 1 # yes
-    else:
-        VBPMeds = 0 # no
-    VBPMeds = int(VBPMeds)
+        VPrevalentStroke = li_PrevalentStroke.get(li_PrevalentStroke.curselection())
+        if VPrevalentStroke == 'yes':
+            VPrevalentStroke = 1 # yes
+        else:
+            VPrevalentStroke = 0 # no
+        VPrevalentStroke = int(VPrevalentStroke)
 
-    VPrevalentStroke = li_PrevalentStroke.get(li_PrevalentStroke.curselection())
-    if VPrevalentStroke == 'yes':
-        VPrevalentStroke = 1 # yes
-    else:
-        VPrevalentStroke = 0 # no
-    VPrevalentStroke = int(VPrevalentStroke)
+        VPrevalentHYP = li_PrevalentHYP.get(li_PrevalentHYP.curselection())
+        if VPrevalentHYP == 'yes':
+            VPrevalentHYP = 1 # yes
+        else:
+            VPrevalentHYP = 0 # no
+        VPrevalentHYP = int(VPrevalentHYP)
 
-    VPrevalentHYP = li_PrevalentHYP.get(li_PrevalentHYP.curselection())
-    if VPrevalentHYP == 'yes':
-        VPrevalentHYP = 1 # yes
-    else:
-        VPrevalentHYP = 0 # no
-    VPrevalentHYP = int(VPrevalentHYP)
+        VDiabetes = li_Diabetes.get(li_Diabetes.curselection())
+        if VDiabetes == 'yes':
+            VDiabetes = 1 # yes
+        else:
+            VDiabetes = 0 # no
+        VDiabetes = int(VDiabetes)
 
-    VDiabetes = li_Diabetes.get(li_Diabetes.curselection())
-    if VDiabetes == 'yes':
-        VDiabetes = 1 # yes
-    else:
-        VDiabetes = 0 # no
-    VDiabetes = int(VDiabetes)
+        VTotChol = int(txt_TotChol.get())
+        VSysBP = int(txt_SysBP.get())
+        VDiaBP = int(txt_DiaBP.get())
+        VBMI = int(txt_BMI.get())
+        VHeartRate = int(txt_HeartRate.get())
+        VGlucose = int(txt_Glucose.get())
 
-    VTotChol = int(txt_TotChol.get())
-    VSysBP = int(txt_SysBP.get())
-    VDiaBP = int(txt_DiaBP.get())
-    VBMI = int(txt_BMI.get())
-    VHeartRate = int(txt_HeartRate.get())
-    VGlucose = int(txt_Glucose.get())
-
-    xSubmit = np.array([VSex,VAge,VEducation,VCSmoker,VCigsPday,VBPMeds,VPrevalentStroke,
+        xSubmit = np.array([VSex,VAge,VEducation,VCSmoker,VCigsPday,VBPMeds,VPrevalentStroke,
                         VPrevalentHYP,VDiabetes,VTotChol,VSysBP,VDiaBP,VBMI,VHeartRate,
                         VGlucose])
-    print(xSubmit)
+        print(xSubmit)
 
-    sLeft   =  "%s" % 500    # X-Position auf dem Bildschirm (linke obere Ecke in Pixels)
-    sTop    =  "%s" % 250    # Y-Position auf dem Bildschirm (linke obere Ecke in Pixels)
-    sWidth  =  "%s" % 600   # Breite (Pixels)
-    sHeight =  "%s" % 300   # Höhe   (Pixels)
+        sLeft   =  "%s" % 500    # X-Position auf dem Bildschirm (linke obere Ecke in Pixels)
+        sTop    =  "%s" % 250    # Y-Position auf dem Bildschirm (linke obere Ecke in Pixels)
+        sWidth  =  "%s" % 600   # Breite (Pixels)
+        sHeight =  "%s" % 300   # Höhe   (Pixels)
 
-    lb = tk.Label(second, text=xSubmit)
-    lb.pack()
+        lb = tk.Label(second, text=xSubmit)
+        lb.pack()
+    
+        second.wm_geometry(sWidth+"x"+sHeight+"+"+sLeft+"+"+sTop)
 
-    second.wm_geometry(sWidth+"x"+sHeight+"+"+sLeft+"+"+sTop)
+        second.mainloop()
+    except:
+        second.destroy()
 
-    second.mainloop()
+        third = tk.Tk()
+        third.title("Failure!")
+        lb = tk.Label(third, text="Some entries are empty or have incorrect inputs. Please fill out all boxes with a correct input!")
+        sLeft   =  "%s" % 600    # X-Position auf dem Bildschirm (linke obere Ecke in Pixels)
+        sTop    =  "%s" % 350    # Y-Position auf dem Bildschirm (linke obere Ecke in Pixels)
+        sWidth  =  "%s" % 700   # Breite (Pixels)
+        sHeight =  "%s" % 50   # Höhe   (Pixels)
+        lb.pack()
+
+        third.wm_geometry(sWidth+"x"+sHeight+"+"+sLeft+"+"+sTop)
+        third.resizable(width=0, height=0) # Verhinderung, dass die Fenstergröße verändert werden kann
+        Button_try_again = tk.Button(third,text="Try again", bd=1, highlightthickness=0, command= third.destroy)
+        Button_try_again.pack()
+        
+        third.mainloop()
 
 ## Main Window
-fenster= tk.Tk()
+
 fenster.title("TechLabs - Group 11")
 
 back_gnd = tk.Canvas(fenster)
