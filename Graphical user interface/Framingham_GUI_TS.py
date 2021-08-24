@@ -116,11 +116,11 @@ def submit():
 
         third = tk.Tk()
         third.title("Failure!")
-        lb = tk.Label(third, text="Some entries are empty or have incorrect inputs. Please fill out all boxes with a correct input!")
-        sLeft   =  "%s" % 600    # X-Position auf dem Bildschirm (linke obere Ecke in Pixels)
-        sTop    =  "%s" % 350    # Y-Position auf dem Bildschirm (linke obere Ecke in Pixels)
-        sWidth  =  "%s" % 700   # Breite (Pixels)
-        sHeight =  "%s" % 50   # Höhe   (Pixels)
+        lb = tk.Label(third, text="Some entries are empty or have an incorrect input.\n Please fill out all boxes with a correct input!\n All boxes need to be fill out.")
+        sLeft   =  "%s" % 650    # X-Position auf dem Bildschirm (linke obere Ecke in Pixels)
+        sTop    =  "%s" % 450    # Y-Position auf dem Bildschirm (linke obere Ecke in Pixels)
+        sWidth  =  "%s" % 500   # Breite (Pixels)
+        sHeight =  "%s" % 100   # Höhe   (Pixels)
         lb.pack()
 
         third.wm_geometry(sWidth+"x"+sHeight+"+"+sLeft+"+"+sTop)
