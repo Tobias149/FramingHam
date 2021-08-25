@@ -143,7 +143,7 @@ plt.ylabel('Gap Value')
 plt.title('Gap Values by Cluster Count')
 plt.show()
 '''
-
+'''
 # GAP Method to find the optimal value of k for KMeans
 # https://github.com/milesgranger/gap_statistic/blob/master/Example.ipynb
 xtrain_c = xtrain_c.astype(float)
@@ -217,71 +217,118 @@ plt.show()
 
 # k optimal aus den Abbildungen(5 Wiederholungen): 5,3,3,3,3
 
-
+'''
 ########################################################################################################################
 ########################################################################################################################
 
 # Clustering with KMeans, number of clusters based on the evaluations above
 # https://towardsdatascience.com/machine-learning-algorithms-part-9-k-means-example-in-python-f2ad05ed5203
-n_clusters=6
-from sklearn.cluster import KMeans
 
-kmeans = KMeans(n_clusters=6, init='k-means++', max_iter=300, n_init=10)
-df = []
-for j in range(10):
-    X = xtrain_c
-    pred_y = kmeans.fit_predict(X)
-    # Dividing the clusters for further analysis, determining size and TenYearCHD status of the clusters
-    cluster = []
-    clustery = []
-    clusterxy = []
-    for i in range(n_clusters):
-        cluster.append(xtrain_c[pred_y == i])
-        clustery.append(ytrain_c[pred_y == i])
-        clusterxy.append(cluster[i].join(clustery[i]))
-        print(clusterxy[i].shape)
-        print(clusterxy[i]['TenYearCHD'].sum())
-    ########################################################################################################################
-    ########################################################################################################################
+def cb_smote():
+    from sklearn.cluster import KMeans
+    n_clusters=6
+    kmeans = KMeans(n_clusters=6, init='k-means++', max_iter=300, n_init=10)
+    df = []
+    for j in range(10):
+        X = xtrain_c
+        pred_y = kmeans.fit_predict(X)
+        # Dividing the clusters for further analysis, determining size and TenYearCHD status of the clusters
+        cluster = []
+        clustery = []
+        clusterxy = []
+        for i in range(n_clusters):
+            cluster.append(xtrain_c[pred_y == i])
+            clustery.append(ytrain_c[pred_y == i])
+            clusterxy.append(cluster[i].join(clustery[i]))
+            #print(clusterxy[i].shape)
+            #print(clusterxy[i]['TenYearCHD'].sum())
+        ########################################################################################################################
+        ########################################################################################################################
 
-    # Oversampling of the newly created clusters
-    max = 0
-    max_index = 0
-    for i in range(n_clusters):
-        if max < clusterxy[i].shape[0]:
-            max = clusterxy[i].shape[0]
-            max_index = i
-    clusterxy_0 = clusterxy[max_index]['TenYearCHD']#[clusterxy[max_index]['TenYearCHD'] == 0]
-    smote = SMOTENC(categorical_features=[0,2,3,5,6,7,8], sampling_strategy={ 1: len(clusterxy_0)}, k_neighbors=3) #0: len(clusterxy_0),
-    dfx = []
-    dfy = []
-    df_temp = []
-    for i in range(n_clusters):
-        X = cluster[i]
-        y = clustery[i]
-        xtrain_cbs, ytrain_cbs = smote.fit_resample(X, y)
-        #print(xtrain_cbs.shape)
-        dfx.append(xtrain_cbs)
-        dfy.append(ytrain_cbs)
-        df_temp.append(dfx[i].join(dfy[i]))
-    df.append(np.concatenate(df_temp))
+        # Oversampling of the newly created clusters
+        max = 0
+        max_index = 0
+        for i in range(n_clusters):
+            if max < clusterxy[i].shape[0]:
+                max = clusterxy[i].shape[0]
+                max_index = i
+        clusterxy_0 = clusterxy[max_index]['TenYearCHD']#[clusterxy[max_index]['TenYearCHD'] == 0]
+
+        dfx = []
+        dfy = []
+        df_temp = []
+        for i in range(n_clusters):
+            zero=len(clustery[i][clustery[i]==0])
+            smote = SMOTENC(categorical_features=[0, 2, 3, 5, 6, 7, 8], sampling_strategy={0: zero, 1: len(clusterxy_0)-zero},
+                            k_neighbors=3)
+            X = cluster[i]
+            y = clustery[i]
+            xtrain_cbs, ytrain_cbs = smote.fit_resample(X, y)
+            #print(xtrain_cbs.shape)
+            dfx.append(xtrain_cbs)
+            dfy.append(ytrain_cbs)
+            df_temp.append(dfx[i].join(dfy[i]))
+        df.append(np.concatenate(df_temp))
 
 
 
-df_test = []
+    df_test = []
 
-for dataframe in df:
-    dataframe = pd.DataFrame(dataframe)
-    #print(dataframe)
-    df_test = dataframe.sample(frac =0.2)       #Get the final data set, take fraction of oversampled datasets
-    #print(df_test.shape)
-    #print(df_test)
+    for dataframe in df:
+        dataframe = pd.DataFrame(dataframe)
+        #print(dataframe)
+        df_test = dataframe.sample(frac =0.2)       #Get the final data set, take fraction of oversampled datasets
+        #print(df_test.shape)
+        #print(df_test)
+
+      #Get the final data set
+
+    dataframe[0].append([dataframe[1], dataframe[2], dataframe[3], dataframe[4], dataframe[5]])
+    #print(dataframe.shape)
+    #print(dataframe.head)
+    #dataframe.to_csv((r'C:\Users\Lisa Mary\Documents\TechLabs\Framingham Data Set\Framingham_SMOTE.csv'))
+
 
 ########################################################################################################################
 ########################################################################################################################
-#Get the final data set
+#Using SMOTE with cross validation
+#https://kiwidamien.github.io/how-to-do-cross-validation-when-upsampling-data.html
+#https://towardsdatascience.com/the-right-way-of-using-smote-with-cross-validation-92a8d09d00c7
+from sklearn.preprocessing import StandardScaler
+from sklearn import svm
+from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold
+from imblearn.pipeline import Pipeline as imbpipeline
 
-dataframe[0].append([dataframe[1], dataframe[2], dataframe[3], dataframe[4], dataframe[5]])
-print(dataframe.shape)
-print(dataframe.head)
-#dataframe.to_csv((r'C:\Users\Lisa Mary\Documents\TechLabs\Framingham Data Set\Framingham_SMOTE.csv'))
+
+
+pipeline = imbpipeline(steps=[['smote', cb_smote()],
+                              ['scaler', StandardScaler()],
+                              ['classifier', svm.SVC()]])
+
+stratified_kfold = StratifiedKFold(n_splits=5,
+                                   shuffle=True,
+                                   random_state=11)
+
+param_grid = {'classifier__C': [0.1,1, 10, 100], 'classifier__gamma': [1,0.1,0.01,0.001],'classifier__kernel': ['rbf', 'poly', 'sigmoid']}
+grid_search = GridSearchCV(estimator=pipeline,
+                           param_grid=param_grid,
+                           scoring='accuracy',
+                           cv=stratified_kfold,
+                           n_jobs=-1)
+
+grid_search.fit(xtrain_c, ytrain_c)
+cv_score = grid_search.best_score_
+test_score = grid_search.score(xtest_c, ytest_c)
+print(f'Cross-validation score: {cv_score}\nTest score: {test_score}')
+
+#scoring= roc_auc
+# Cross-validation score: 0.6667525958334009
+#Test score: 0.6649260585546072
+
+#scoring=f1
+#Cross-validation score: 0.2676339551721555
+#Test score: 0.22140221402214022
+
+#scoring =accuracy
+#Cross-validation score: 0.851566265060241
+#Test score: 0.852808988764045
