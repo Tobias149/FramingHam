@@ -299,27 +299,39 @@ from sklearn import svm
 from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold
 from imblearn.pipeline import Pipeline as imbpipeline
 
+#bei Aufrufen der Pipeline müssen ein classifier und Hyperparameter verpflichtend angegeben werden, smote ist optional; falls
+#smote gewünscht ist, muss die Funktion cb_smote() als Argument angefügt werden
+def model_pipeline(classifier, params, smote=None):
+    pipeline = imbpipeline(steps=[['smote', smote],
+                                  ['scaler', StandardScaler()],
+                                  ['classifier', classifier]])
+
+    stratified_kfold = StratifiedKFold(n_splits=5,
+                                       shuffle=True,
+                                       random_state=12345)
+
+    param_grid = params #{'classifier__C': [0.1,1, 10, 100], 'classifier__gamma': [1,0.1,0.01,0.001],'classifier__kernel': ['rbf', 'poly', 'sigmoid']}
+    grid_search = GridSearchCV(estimator=pipeline,
+                               param_grid=param_grid,
+                               scoring= 'f1',
+                               cv=stratified_kfold,
+                               n_jobs=-1)
+
+    grid_search.fit(x, y)
+    cv_score = grid_search.best_score_
+    #test_score = grid_search.score(xtest_c, ytest_c)
+    print(f'Cross-validation score: {cv_score}')
+          #\nTest score: {test_score}')
+    print(grid_search.best_params_)
+
+#zum Aufrufen der Pipeline mit den jeweiligen Argumenten
+print(model_pipeline(svm.SVC(), {'classifier__C': [0.1,1, 10, 100], 'classifier__gamma': [1,0.1,0.01,0.001],
+                                 'classifier__kernel': ['rbf', 'poly', 'sigmoid']}, cb_smote()))
 
 
-pipeline = imbpipeline(steps=[['smote', cb_smote()],
-                              ['scaler', StandardScaler()],
-                              ['classifier', svm.SVC()]])
 
-stratified_kfold = StratifiedKFold(n_splits=5,
-                                   shuffle=True,
-                                   random_state=11)
+#print(pipeline_model())
 
-param_grid = {'classifier__C': [0.1,1, 10, 100], 'classifier__gamma': [1,0.1,0.01,0.001],'classifier__kernel': ['rbf', 'poly', 'sigmoid']}
-grid_search = GridSearchCV(estimator=pipeline,
-                           param_grid=param_grid,
-                           scoring='accuracy',
-                           cv=stratified_kfold,
-                           n_jobs=-1)
-
-grid_search.fit(xtrain_c, ytrain_c)
-cv_score = grid_search.best_score_
-test_score = grid_search.score(xtest_c, ytest_c)
-print(f'Cross-validation score: {cv_score}\nTest score: {test_score}')
 
 #scoring= roc_auc
 # Cross-validation score: 0.6667525958334009
