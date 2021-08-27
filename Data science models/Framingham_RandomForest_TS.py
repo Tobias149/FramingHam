@@ -78,16 +78,17 @@ print('Accuracy: %.3f (%.3f)' % (mean(n_scores), std(n_scores)))
 print(pd.crosstab(ytest, ypred))
 
 ## Save the model to file wokring directory
-#pickle.dump(model_RF, open('/Users/tobiasschmidt/Desktop/TechLabs 2/Dataset 2/model_RF.pkl', 'wb'))
+pickle.dump(model_RF, open('/Users/tobiasschmidt/Desktop/TechLabs 2/Dataset 2/RandomForest_Model.pkl', 'wb'))
 
 ## Load the Model back from file
 #pickled_model_RF = pickle.load(open('/Users/tobiasschmidt/Desktop/TechLabs 2/Dataset 2/model_RF.pkl', 'rb'))
-urllib.request.urlretrieve("https://raw.githubusercontent.com/Tobias149/FramingHam/main/Data%20science%20models/model_RF.pkl", "model_RF.pkl")
-pickled_model_RF = pickle.load(open('model_RF.pkl', 'rb'))
+urllib.request.urlretrieve("https://raw.githubusercontent.com/Tobias149/FramingHam/main/Data%20science%20models/RandomForest_Model.pkl", "RandomForest_Model.pkl")
+pickled_model_RF = pickle.load(open('RandomForest_Model.pkl', 'rb'))
 
 ## Create a test array for prediction 
 test_person = [1,23,2,1,5,1,1,1,1,190,140,90,23,80,70]
 test_person_predict = np.array(test_person)
+test_person_predict = test_person_predict.reshape(1,-1)
 
 ## Make a prediction
 prediction = pickled_model_RF.predict(test_person_predict)
