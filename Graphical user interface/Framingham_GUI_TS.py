@@ -8,8 +8,7 @@ from PIL import Image, ImageTk
 from numpy.lib.polynomial import roots
 import urllib.request
 import numpy as np
-
-fenster= tk.Tk()
+import pickle
 
 ## Funktion zur Schaltfläche Ende
 def ende():
@@ -17,18 +16,11 @@ def ende():
 
 ## Function submit button
 def submit():
-
-    second = tk.Tk()
-    second.title("Your entries!")
-    back_second = tk.Canvas(second)
-    back_second.pack(expand=True, fill='both')
-    #urllib.request.urlretrieve("https://raw.githubusercontent.com/Tobias149/FramingHam/main/Graphical%20user%20interface/internal_structures_1_0.jpg", "internal_structures_1_0.jpg")
-    #back_gnd_image = Image.open("internal_structures_1_0.jpg")
     
-    #resize_back_second_image = back_second_image.resize((1100, 600))
-    #back_second_image = ImageTk.PhotoImage(resize_back_second_image)
-    #back_second.create_image(0,0, anchor='center', image = back_second_image)
+    ## The result window
+    second = tk.Tk()
 
+    ## Input variables from the GUI
     try:
         VSex = li_SEX.get(li_SEX.curselection())
         if VSex == 'male':
@@ -94,32 +86,16 @@ def submit():
         VBMI = int(txt_BMI.get())
         VHeartRate = int(txt_HeartRate.get())
         VGlucose = int(txt_Glucose.get())
-
-        xSubmit = np.array([VSex,VAge,VEducation,VCSmoker,VCigsPday,VBPMeds,VPrevalentStroke,
-                        VPrevalentHYP,VDiabetes,VTotChol,VSysBP,VDiaBP,VBMI,VHeartRate,
-                        VGlucose])
-        print(xSubmit)
-
-        sLeft   =  "%s" % 500    # X-Position auf dem Bildschirm (linke obere Ecke in Pixels)
-        sTop    =  "%s" % 250    # Y-Position auf dem Bildschirm (linke obere Ecke in Pixels)
-        sWidth  =  "%s" % 600   # Breite (Pixels)
-        sHeight =  "%s" % 300   # Höhe   (Pixels)
-
-        lb = tk.Label(second, text=xSubmit)
-        lb.pack()
-    
-        second.wm_geometry(sWidth+"x"+sHeight+"+"+sLeft+"+"+sTop)
-
-        second.mainloop()
+        
     except:
         second.destroy()
 
         third = tk.Tk()
         third.title("Failure!")
-        lb = tk.Label(third, text="Some entries are empty or have an incorrect input.\n Please fill out all boxes with a correct input!\n All boxes need to be fill out.")
-        sLeft   =  "%s" % 650    # X-Position auf dem Bildschirm (linke obere Ecke in Pixels)
-        sTop    =  "%s" % 450    # Y-Position auf dem Bildschirm (linke obere Ecke in Pixels)
-        sWidth  =  "%s" % 500   # Breite (Pixels)
+        lb = tk.Label(third, text="Some entries are empty or have an incorrect input.\n Please fill out all boxes with a correct input!\n All boxes need to be filled out.")
+        sLeft   =  "%s" % 650   # X-Position auf dem Bildschirm (linke obere Ecke in Pixels)
+        sTop    =  "%s" % 450   # Y-Position auf dem Bildschirm (linke obere Ecke in Pixels)
+        sWidth  =  "%s" % 600   # Breite (Pixels)
         sHeight =  "%s" % 100   # Höhe   (Pixels)
         lb.pack()
 
@@ -130,23 +106,57 @@ def submit():
         
         third.mainloop()
 
+    ## Creation of an array of all entries from the GUI
+    xSubmit = np.array([VSex,VAge,VEducation,VCSmoker,VCigsPday,VBPMeds,VPrevalentStroke,
+                        VPrevalentHYP,VDiabetes,VTotChol,VSysBP,VDiaBP,VBMI,VHeartRate,
+                        VGlucose])
+    
+    
+    second.title("Prediction of a ten year risk of coronary heart disease!")
+
+    ## Load the Model back from Github for classification
+    urllib.request.urlretrieve("https://raw.githubusercontent.com/Tobias149/FramingHam/main/Data%20science%20models/RandomForest_Model.pkl", "RandomForest_Model.pkl")
+    pickled_model_RF = pickle.load(open('RandomForest_Model.pkl', 'rb'))
+
+    ## Change the shape from the array "xSubmit"
+    New_classification_predict = xSubmit.reshape(1,-1)
+
+    ## Make a classification of the new entry
+    prediction = pickled_model_RF.predict(New_classification_predict)
+    #print(prediction)  
+    prediction = prediction[0]  # transfrom the value of the array into string
+
+    if prediction == 1:    
+                lb = tk.Label(second, text="Bad news: Your entries are classfied with: 1\n\n You will suffer from coronary heart disease in ten years!\n\n Please change your current lifestyle.")
+                lb.pack()  
+    else:
+        lb = tk.Label(second, text="Good news: Your entries are classfied with: 0\n\n You will not suffer from coronary heart disease in ten years!\n\n You can carry on with your lifestyle.")
+        lb.pack()
+    
+    ## Limitation of the result window size and changes
+    sLeft   =  "%s" % 600   # X-Position auf dem Bildschirm (linke obere Ecke in Pixels)
+    sTop    =  "%s" % 350   # Y-Position auf dem Bildschirm (linke obere Ecke in Pixels)
+    sWidth  =  "%s" % 500   # Breite (Pixels)
+    sHeight =  "%s" % 100   # Höhe   (Pixels)
+
+    second.wm_geometry(sWidth+"x"+sHeight+"+"+sLeft+"+"+sTop)
+    second.resizable(width=0, height=0) # Verhinderung, dass die Fenstergröße verändert werden kann
+  
+    second.mainloop()
+    
 ## Main Window
-
+fenster= tk.Tk()
 fenster.title("TechLabs - Group 11")
-
 back_gnd = tk.Canvas(fenster)
 back_gnd.pack(expand=True, fill='both')
 
 ## Read and open the Image from Desktop
-#path2 = '/Users/tobiasschmidt/Desktop/15-heart-symptoms-s2-heart-disease-warning-sign.jpg'
 #path1 = '/Users/tobiasschmidt/Desktop/internal_structures_1_0.jpg'
 #back_gnd_image = Image.open(path1)
 
 ## Read and open the Image from Github
-#urllib.request.urlretrieve("https://raw.githubusercontent.com/Tobias149/FramingHam/main/internal_structures_1_0.jpg", "internal_structures_1_0.jpg")
 urllib.request.urlretrieve("https://raw.githubusercontent.com/Tobias149/FramingHam/main/Graphical%20user%20interface/internal_structures_1_0.jpg", "internal_structures_1_0.jpg")
 back_gnd_image = Image.open("internal_structures_1_0.jpg")
-
 
 ## Reszie the Image
 resize_back_gnd_image = back_gnd_image.resize((1100, 600))
@@ -207,9 +217,6 @@ back_gnd.create_window(900,400, window=lbl_Glucose, anchor='center', width=230)
 ### Input features left hand ###
 
 frame_Sex =tk.Frame(fenster)
-#scb_SEX = tk.Scrollbar(fenster,orient="vertical")
-#li_SEX = tk.Listbox(fenster, height=0,yscrollcommand=scb_SEX.set)
-#scb_SEX["command"]= li_SEX.yview
 Gender = ["female","male"] # 1 = Female, 0 = Male
 li_SEX = tk.Listbox(fenster, exportselection=0, height=0)
 for i in Gender:
@@ -221,8 +228,6 @@ txt_AGE.insert(0, "23") # years
 back_gnd.create_window(335,150, window=txt_AGE, anchor='center', width=60) 
 
 scb_Education = tk.Scrollbar(fenster,orient="vertical")
-#li_Education = tk.Listbox(fenster, height=2)
-## 1 = 0-11 years, 2 = high school or GED, 3 = some college, 4 = college graduate or higher
 Education = ["primary school","high school","college","college grad."] 
 li_Education = tk.Listbox(exportselection=0, height=2, yscrollcommand = scb_Education.set)
 for i in Education:   
@@ -231,9 +236,6 @@ scb_Education["command"]= li_Education.yview
 back_gnd.create_window(355,200, window=li_Education,anchor='center', width=100)
 back_gnd.create_window(415,200, window=scb_Education,anchor='center', height=60)
 
-#scb_CSmoker = tk.Scrollbar(fenster,orient="vertical")
-#li_CSmoker = tk.Listbox(fenster, height=0,yscrollcommand=scb_CSmoker.set)
-#scb_CSmoker["command"]= li_CSmoker.yview
 CSmoker = ["yes","no"]
 li_CSmoker = tk.Listbox(exportselection=0,height=0)
 for i in CSmoker:
@@ -244,9 +246,6 @@ txt_CigsPday = tk.Entry(fenster)
 txt_CigsPday.insert(0, "5")
 back_gnd.create_window(335,300, window=txt_CigsPday, anchor='center', width=60) 
 
-#scb_BPMeds = tk.Scrollbar(fenster,orient="vertical")
-#li_BPMeds = tk.Listbox(fenster, height=0,yscrollcommand=scb_BPMeds.set)
-#scb_BPMeds["command"]= li_BPMeds.yview
 BPMeds = ["yes","no"]
 li_BPMeds = tk.Listbox(fenster, exportselection=0, height=0)
 for i in BPMeds:
