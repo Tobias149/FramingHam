@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 
 pd.options.display.max_columns = None  # with this line, all columns are showed
-
+'''
 df = pd.read_csv('C:/Users/Lisa Mary/Documents/TechLabs/Framingham Data Set/Framingham_cleaned.csv')
 y = df.TenYearCHD
 x = df.drop(columns=['TenYearCHD'])
@@ -61,7 +61,7 @@ neigh.fit(xtrain_smote1, ytrain_smote1)
 ypred1 = neigh.predict(xtest_c)
 print("Accuracy SMOTE and Undersampling:", accuracy_score(ytest_c, ypred1))
 print("SMOTE and Undersampling:", pd.crosstab(ytest_c, ypred1))
-
+'''
 ########################################################################################################################
 ########################################################################################################################
 # cluster based oversampling method based on Santos et al. (2015)
@@ -223,6 +223,19 @@ plt.show()
 
 # Clustering with KMeans, number of clusters based on the evaluations above
 # https://towardsdatascience.com/machine-learning-algorithms-part-9-k-means-example-in-python-f2ad05ed5203
+df = pd.read_csv('C:/Users/Lisa Mary/Documents/TechLabs/Framingham Data Set/Framingham_cleaned.csv')
+y_data = df.TenYearCHD
+x_data = df.drop(columns=['TenYearCHD'])
+x_data = x_data.sort_index()
+y_data = pd.Series(y_data).sort_index()
+
+from imblearn.over_sampling import SMOTENC
+from imblearn.over_sampling import SMOTE
+
+
+def smote():
+    smote = SMOTENC(categorical_features=[0, 2, 3, 5, 6, 7, 8])
+    smote.fit_resample(x_data, y_data)
 
 def cb_smote():
     from sklearn.cluster import KMeans
@@ -230,15 +243,15 @@ def cb_smote():
     kmeans = KMeans(n_clusters=6, init='k-means++', max_iter=300, n_init=10)
     df = []
     for j in range(10):
-        X = xtrain_c
+        X = x_data
         pred_y = kmeans.fit_predict(X)
         # Dividing the clusters for further analysis, determining size and TenYearCHD status of the clusters
         cluster = []
         clustery = []
         clusterxy = []
         for i in range(n_clusters):
-            cluster.append(xtrain_c[pred_y == i])
-            clustery.append(ytrain_c[pred_y == i])
+            cluster.append(x_data[pred_y == i])
+            clustery.append(y_data[pred_y == i])
             clusterxy.append(cluster[i].join(clustery[i]))
             #print(clusterxy[i].shape)
             #print(clusterxy[i]['TenYearCHD'].sum())
@@ -300,7 +313,7 @@ from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKF
 from imblearn.pipeline import Pipeline as imbpipeline
 
 #bei Aufrufen der Pipeline müssen ein classifier und Hyperparameter verpflichtend angegeben werden, smote ist optional; falls
-#smote gewünscht ist, muss die Funktion cb_smote() als Argument angefügt werden
+#smote gewünscht ist, muss die Funktion cb_smote() oder smote als Argument angefügt werden
 def model_pipeline(classifier, params, smote=None):
     pipeline = imbpipeline(steps=[['smote', smote],
                                   ['scaler', StandardScaler()],
@@ -313,11 +326,11 @@ def model_pipeline(classifier, params, smote=None):
     param_grid = params #{'classifier__C': [0.1,1, 10, 100], 'classifier__gamma': [1,0.1,0.01,0.001],'classifier__kernel': ['rbf', 'poly', 'sigmoid']}
     grid_search = GridSearchCV(estimator=pipeline,
                                param_grid=param_grid,
-                               scoring= 'f1',
+                               scoring='f1',
                                cv=stratified_kfold,
                                n_jobs=-1)
 
-    grid_search.fit(x, y)
+    grid_search.fit(x_data, y_data)
     cv_score = grid_search.best_score_
     #test_score = grid_search.score(xtest_c, ytest_c)
     print(f'Cross-validation score: {cv_score}')
