@@ -9,9 +9,11 @@ Which files are important in this repo regarding the framingham dataset? Look at
 1.5 Profiling_Report.html (Statistical analyzation of the original dataset) 
 
 2. Data science models:
+
 2.1 Framingham_RandomForest_TS.py (Python program regarding Random Forest Classifier)
+
 2.2 RandomForest_Model.pkl(Serializing of the trained machine learning model - Random Forest Classifier)
 
-3. Graphical user interface:
+3.0 Graphical user interface:
 
 3.1 Framingham_GUI_TS.py (Python program of the graphical user interface, which is connected with py.file Framingham_RandomForest_TS.py)
