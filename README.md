@@ -1,7 +1,7 @@
 # FramingHam - Predicting a ten year risk of coronary heart disease
 Which files are important in this repo regarding the framingham dataset? Look at the following folders...
 
-1. Folder Data cleaning:
+# 1. Folder Data cleaning:
 
 1.1 framingham_origin.csv (This is the original dataset downloaded from Kaggle (https://www.kaggle.com/dileep070/heart-disease-prediction-using-logistic-regression?select=framingham.csv; downloaded 29.05.2021
 
