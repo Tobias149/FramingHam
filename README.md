@@ -21,4 +21,4 @@ Which files are important in this repo regarding the framingham dataset? Look at
 
 # 3. Graphical user interface:
 
-3.1 Framingham_GUI_TS.py (Python program of the graphical user interface, which is connected with py.file Framingham_RandomForest_TS.py)
+3.1 Framingham_GUI_TS.py (Python program of the graphical user interface, which is connected with pkl.file RandomForest_Model.pkl)
