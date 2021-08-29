@@ -19,36 +19,35 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import recall_score
 from sklearn.metrics import accuracy_score
-
-
-df = pd.read_csv("/content/drive/MyDrive/Techlabs/framingham_test.csv")
-df = df.iloc[: , 1:]
-df.head
-
-ax = df['TenYearCHD'].value_counts().plot(kind='bar', figsize=(10, 6), fontsize=13, color='#087E8B')
-ax.set_title('Ten Year Risk of coronary heart disease (0=no, 1=yes)', size=20, pad=30)
-ax.set_ylabel('Number of patients', fontsize=14)
-
-for i in ax.patches:
-    ax.text(i.get_x(), i.get_height(), str(round(i.get_height(), 2)), fontsize=15)
+from sklearn.metrics import f1_score
 
 from sklearn.model_selection import train_test_split
+
+df=pd.read_csv("/content/drive/MyDrive/Techlabs/framingham_cleaned.csv")
 
 X = df.drop('TenYearCHD', axis=1)
 y = df['TenYearCHD']
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.25, random_state=11)
+#X_train, X_test, y_train, y_test = train_test_split(
+    #X, y, test_size=0.25, random_state=11)
 
-print(f'''% Positive class in Train = {np.round(y_train.value_counts(normalize=True)[1] * 100, 2)}
-% Positive class in Test  = {np.round(y_test.value_counts(normalize=True)[1] * 100, 2)}''')
+#print(f'''% Positive class in Train = {np.round(y_train.value_counts(normalize=True)[1] * 100, 2)}
+#% Positive class in Test  = {np.round(y_test.value_counts(normalize=True)[1] * 100, 2)}''')
+
+from sklearn.model_selection import RepeatedStratifiedKFold
+from sklearn.model_selection import cross_val_score
+
+cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=11)
+df_test=pd.read_csv("/content/drive/MyDrive/Techlabs/framingham_test.csv")
+x_test=df_test.drop("TenYearCHD", axis=1)
+y_test=df_test.TenYearCHD
 
 from sklearn.preprocessing import StandardScaler
 
-#Standardization of X_Train
-scaler_model = StandardScaler().fit(X_train)
-standard_X = scaler_model.transform(X_train)
-standard_X_test = scaler_model.transform(X_test)
+#Standardization
+scaler_model = StandardScaler().fit(X)
+standard_X = scaler_model.transform(X)
+standard_X_test = scaler_model.transform(x_test)
 
 #Define Logistic Regression as a Machine Learning model to use GridSearchCV
 
@@ -61,6 +60,7 @@ pipe = Pipeline(steps=[#('std_slc', std_slc),
                            ('logistic_Reg', logistic_Reg)])
 #Pipeline helps by passing modules one by one through GridSearchCV for which we want to get the best parameters
 
+
 C = np.logspace(-4, 4, 50)
 penalty = ['l1', 'l2']
 
@@ -72,39 +72,35 @@ parameters = dict(logistic_Reg__C=C,
 
 #creating a dictionary to set all the parameters options for different modules
 
-clf_GS = GridSearchCV(pipe, parameters, cv=5, scoring='recall')
-clf_GS.fit(X, y)
+clf_GS = GridSearchCV(pipe, parameters, cv=5, scoring="f1")
+clf_GS.fit(standard_X, y)
 
 print('Best Penalty:', clf_GS.best_estimator_.get_params()['logistic_Reg__penalty'])
 print('Best C:', clf_GS.best_estimator_.get_params()['logistic_Reg__C'])
 print(); print(clf_GS.best_estimator_.get_params()['logistic_Reg'])
 
 # define model with optimized hyperparameter
-LogisticRegression(C=75.43120063354607, class_weight=None, dual=False,
+logistic_Reg = LogisticRegression(C=1.2067926406393288, class_weight=None, dual=False,
                    fit_intercept=True, intercept_scaling=1, l1_ratio=None,
                    max_iter=100, multi_class='auto', n_jobs=None, penalty='l2',
                    random_state=None, solver='lbfgs', tol=0.0001, verbose=0,
                    warm_start=False)
 
 # fit the model
-logistic_Reg.fit(X, y)
+logistic_Reg=logistic_Reg.fit(standard_X, y)
 
-
-# make a single prediction
-newrow = X
+# make a single prediction on the test data
+newrow = x_test
 ypred = logistic_Reg.predict(newrow)
 
 print(ypred)
 
-# evaluate the model
-from sklearn.model_selection import RepeatedStratifiedKFold
-from sklearn.model_selection import cross_val_score
 
-cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=11)
-n_scores = cross_val_score(logistic_Reg, X, y, scoring='accuracy', cv=cv, n_jobs=-1, error_score='raise')
+from sklearn.metrics import f1_score
+f1_score = f1_score(y_test, ypred, average="micro")
+f1_score
 
-
-# Accuracy
-print('Accuracy: %.3f (%.3f)' % (mean(n_scores), std(n_scores)))
-# crosstab
-print(pd.crosstab(y, ypred))
+# import the metrics class
+from sklearn import metrics
+cnf_matrix = metrics.confusion_matrix(y_test, ypred)
+cnf_matrix
